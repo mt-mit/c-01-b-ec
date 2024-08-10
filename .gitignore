@@ -1,0 +1,5 @@
+*.log
+*.pyc
+./c01bec/c01bec/__pycache__
+./c01bec/ec/__pycache__
+./c01bec/ec/migrations/__pycache__

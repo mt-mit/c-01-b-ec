@@ -1,0 +1,90 @@
+生成AIを使ったバックエンドのテスト駆動開発(windows) memo
+
+0.djangoインストール、プロジェクト作成
+pip install django
+pip install djangorestframework
+django-admin startproject c-01-b-ec
+
+1.DB
+cd C:\git\c-01-b-ec\
+docker-compose up -d
+
+2.app 作成コマンド
+python manage.py startapp ec
+
+2.model.py 作成
+コメントで定義を入力、copilotでモデルごとに自動生成
+
+3.マイグレーション
+python manage.py migrate
+
+4.モデルの作成
+python manage.py makemigrations ec
+python manage.py sqlmigrate ec 0001
+python manage.py migrate
+
+5.管理画面の作成
+C:\git\c-01-b-ec\c01bec> python manage.py createsuperuser
+root/root
+admin.py にモデルを登録 Copillotで自動生成
+
+6.restframeworkのインストール
+pip install djangorestframework
+pip install markdown
+pip install django-filter
+
+7.serializer/viewsetの作成
+urls.py に追記（公式ドキュメント参照）
+
+8.動作確認
+http://127.0.0.1:8000/ec/products/
+
+
+ここまでは、Djangoとrestframeworkの基本的な使い方
+ここからが主旨
+
+9.test.py 作成
+Django+restframeworkだとかなりコーディングレス
+ビジネスロジックのないAPIはほぼテスト不要=ここまでの手順にTDDは不要
+
+10. ビジネスロジックを含むAPIでTDDを考えてみる
+例えば: 機能変更として price をドルに変換するロジックを追加する
+
+11. ドル変換が期待値のテストコードを書いて失敗させる(TDDでいうRED)
+ProductsTestCaseを修正(コメントから自動生成)
+python manage.py test ec
+
+======================================================================
+FAIL: test_products (ec.tests.ProductsTestCase.test_products)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\git\c-01-b-ec\c01bec\ec\tests.py", line 12, in test_products
+    self.assertEqual(test_product.price, 6.7)
+AssertionError: 1000 != 6.7
+
+----------------------------------------------------------------------
+
+12. テストを通すためにロジックを修正(TDDでいうGREEN)
+models.py にメソッドを追加(コメントから自動生成)
+
+    # 円からドルに変換するメソッド
+    def yen_to_dollar(self):
+        return self.price / 150
+
+python manage.py test ec でテストを通す
+
+13. テストをリファクタリング(TDDでいうREFACTOR)
+        # 円からドルに変換するメソッドのテスト
+        self.assertEqual(test_product.yen_to_dollar(), 1000/150)
+
+14. 次の実装機能のテストを追加(TDDでいうRED) 
+以降cycleを回すイメージか
+    TDDcycleを回す意義は、実装コードの品質を向上させること、テストコードを揃えること、リファクタリングを行いやすくすること、など
+
+
+15. フロントエンドのためにCORSを設定
+pip install django-cors-headers
+settings.py に追記
+
+16. フロントエンド立ち上げ
+

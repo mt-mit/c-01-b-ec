@@ -1,5 +1,5 @@
 <!-- djangoのREADME -->
-# Django
+# c-01-b-ec
 
 ## 概要
 学習用
